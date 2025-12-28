@@ -1,0 +1,22 @@
+<launch>
+    <node pkg="my_cpp_pkg" exec="robot_news_station" name="robot_news_station_giskard" > 
+        <param name="robot_name"  value="Giskard"/>
+    </node>
+    <node pkg="my_cpp_pkg" exec="robot_news_station" name="robot_news_station_bb8" > 
+        <param name="robot_name"  value="Bb8"/>
+    </node>
+    <node pkg="my_cpp_pkg" exec="robot_news_station" name="robot_news_station_daneel" > 
+        <param name="robot_name"  value="Daneel"/>
+    </node>
+    <node pkg="my_cpp_pkg" exec="robot_news_station" name="robot_news_station_jander" > 
+        <param name="robot_name"  value="Jander"/>
+    </node>
+    <node pkg="my_cpp_pkg" exec="robot_news_station" name="robot_news_station_c3po" > 
+        <param name="robot_name"  value="C3P0"/>
+    </node>
+
+
+    <node pkg="my_cpp_pkg" exec="smartphone" >
+
+    </node>
+</launch>
