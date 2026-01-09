@@ -14,6 +14,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/ComputeRectangleArea.srv"
   "msg/LedPanelState.msg"
   "srv/SetLed.srv"
+  "msg/Turtle.msg"
+  "msg/TurtleArray.msg"
+  "srv/CatchTurtle.srv"
 )
 ament_export_dependencies(rosidl_default_runtime)
 
