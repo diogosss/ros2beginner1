@@ -7,6 +7,19 @@
     <xacro:property name="wheel_radius" value="0.10" />
     <xacro:property name="wheel_length" value="0.05" />
 
+
+    <xacro:macro name="example_macro" params="a b c">
+        <link name="dummy_link">
+            <visual>
+                <geometry>
+                    <box size="${a} ${b} ${c}"/>
+                </geometry>
+            </visual>
+        </link>
+    </xacro:macro>
+
+    <xacro:example_macro a="2" b="4" c="s" />
+
     <material name="green">
         <color rgba="0.0 0.5 0.0 1.0"/>     
     </material>
