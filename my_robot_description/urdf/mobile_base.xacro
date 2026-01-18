@@ -19,6 +19,12 @@
             <origin xyz="0.0 0.0 ${base_height/2.0}" rpy="0.0 0.0 0.0"/>
             <material name="blue"/>
         </visual>
+        <collision>
+            <geometry>
+                <box size="${base_length} ${base_width} ${base_height}"/>
+            </geometry>   
+            <origin xyz="0.0 0.0 ${base_height/2.0}" rpy="0.0 0.0 0.0"/>         
+        </collision>
         <xacro:box_inertia m="5.0" x="${base_length}" y="${base_width}" z="${base_height}"
                             o_xyz="0.0 0.0 ${base_height/2.0}" o_rpy="0.0 0.0 0.0"/>
 
@@ -32,6 +38,12 @@
             <origin xyz="0.0 0.0 0.0" rpy="${pi/2.0} 0 0"/>
             <material name="grey"/>
         </visual>
+        <collision>
+            <geometry>
+                <sphere radius="${wheel_radius}" />                
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </collision>
         <xacro:cilinder_inertia m="1.0" r="${wheel_radius}" h="${wheel_length}"
                             o_xyz="0.0 0.0 0.0" o_rpy="${pi/2.0} 0.0 0.0"/>
     </link>
@@ -45,6 +57,12 @@
             <origin xyz="0.0 0.0 0.0" rpy="${pi/2.0} 0.0 0.0"/>
             <material name="grey"/>
         </visual>
+        <collision>
+            <geometry>
+                <sphere radius="${wheel_radius}"/>  
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </collision>
         <xacro:cilinder_inertia m="1.0" r="${wheel_radius}" h="${wheel_length}"
                             o_xyz="0.0 0.0 0.0" o_rpy="${pi/2.0} 0.0 0.0"/>
     </link>
@@ -58,6 +76,12 @@
             <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
             <material name="grey"/>
         </visual>
+        <collision>
+            <geometry>
+                <sphere radius="${wheel_radius/2}"/>
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </collision>
         <xacro:sphere_inertia m="0.5" r="${wheel_radius/2}" 
                             o_xyz="0.0 0.0 0.0" o_rpy="0.0 0.0 0.0"/>
     </link>
