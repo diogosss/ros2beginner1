@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 devel/
 logs/
 build/
@@ -49,3 +50,8 @@ qtcreator-*
 
 # Catkin custom files
 CATKIN_IGNORE
+=======
+.vscode/
+log/
+
+>>>>>>> e59dbad (Primer version tutorial ROS2 Begginers 1)
