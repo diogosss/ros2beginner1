@@ -22,8 +22,8 @@
             </geometry>   
             <origin xyz="0.0 0.0 ${arm_base_height}" rpy="0.0 0.0 0.0"/>         
         </collision>
-        <!-- <xacro:box_inertia m="5.0" x="${base_length}" y="${base_width}" z="${base_height}"
-                            o_xyz="0.0 0.0 ${base_height/2.0}" o_rpy="0.0 0.0 0.0"/> -->
+        <xacro:box_inertia m="5.0" x="${arm_base_length}" y="${arm_base_width}" z="${arm_base_height}"
+                            o_xyz="0.0 0.0 ${arm_base_height/2.0}" o_rpy="0.0 0.0 0.0"/>
 
     </link>
 
@@ -41,8 +41,8 @@
             </geometry>
             <origin xyz="0.0 0.0 ${arm_length/2}" rpy="0.0 0.0 0.0"/>
         </collision>
-        <!-- <xacro:cilinder_inertia m="1.0" r="${wheel_radius}" h="${wheel_length}"
-                            o_xyz="0.0 0.0 0.0" o_rpy="${pi/2.0} 0.0 0.0"/> -->
+        <xacro:cilinder_inertia m="1.0" r="${arm_radius}" h="${arm_length}"
+                            o_xyz="0.0 0.0 0.0" o_rpy="${pi/2.0} 0.0 0.0"/>
     </link>
 
     <link name="hand_link">
@@ -59,8 +59,8 @@
             </geometry>
             <origin xyz="0.0 0.0 ${arm_length/2}" rpy="0.0 0.0 0.0"/>
         </collision>
-        <!-- <xacro:cilinder_inertia m="1.0" r="${wheel_radius}" h="${wheel_length}"
-                            o_xyz="0.0 0.0 0.0" o_rpy="${pi/2.0} 0.0 0.0"/> -->
+        <xacro:cilinder_inertia m="1.0" r="${arm_radius}" h="${arm_length}"
+                            o_xyz="0.0 0.0 0.0" o_rpy="${pi/2.0} 0.0 0.0"/>
     </link>
 
 
