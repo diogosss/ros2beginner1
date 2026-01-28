@@ -64,20 +64,22 @@
     </link>
 
 
-    <joint name="base_forearm_joint" type="revolute">
+    <joint name="arm_base_forearm_joint" type="revolute">
         <parent link="arm_base_link"/>
         <child link="forearm_link"/>
         <origin xyz="0.0 0.0 ${arm_base_height/2}" rpy="0.0 0.0 0.0"/>
         <axis xyz="0.0 1.0 0"/>
         <limit lower="0" upper="${pi/2}" effort="100.0" velocity="100"/>
+        <dynamics damping="0.3" friction="0.3"/>        
     </joint>
 
-    <joint name="forearm_hand_link_joint" type="revolute">
+    <joint name="forearm_hand_joint" type="revolute">
         <parent link="forearm_link"/>
         <child link="hand_link"/>        
         <origin xyz="0.0 0.0 ${arm_length}" rpy="0.0 0.0 0.0"/>
         <axis xyz="0.0 1.0 0.0"/>
         <limit lower="0" upper="${pi/2}" effort="100.0" velocity="100.0"/>
+        <dynamics damping="0.3" friction="0.3"/>
     </joint>
 
 
