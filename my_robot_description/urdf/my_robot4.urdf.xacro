@@ -9,9 +9,11 @@
 
     <xacro:include filename="camera.xacro" />
 
-    <xacro:include filename="standalone_arm.urdf.xacro" />
+    <xacro:include filename="arm.xacro" />
 
-    <joint name="robot_to_base" type="fixed">
+    <xacro:include filename="arm_gazebo.xacro" />
+
+    <joint name="mobile_base_arm_joint" type="fixed">
         <parent link="base_link"/>
         <child link="arm_base_link"/>
         <origin xyz="${base_length/2 - arm_base_width} 0 ${base_height+(arm_base_height/2)}" rpy="0 0 0"/>

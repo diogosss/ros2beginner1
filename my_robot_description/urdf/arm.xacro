@@ -22,7 +22,7 @@
             </geometry>   
             <origin xyz="0.0 0.0 ${arm_base_height}" rpy="0.0 0.0 0.0"/>         
         </collision>
-        <xacro:box_inertia m="5.0" x="${arm_base_length}" y="${arm_base_width}" z="${arm_base_height}"
+        <xacro:box_inertia m="0.5" x="${arm_base_length}" y="${arm_base_width}" z="${arm_base_height}"
                             o_xyz="0.0 0.0 ${arm_base_height/2.0}" o_rpy="0.0 0.0 0.0"/>
 
     </link>
@@ -42,7 +42,7 @@
             <origin xyz="0.0 0.0 ${arm_length/2}" rpy="0.0 0.0 0.0"/>
         </collision>
         <xacro:cilinder_inertia m="1.0" r="${arm_radius}" h="${arm_length}"
-                            o_xyz="0.0 0.0 0.0" o_rpy="${pi/2.0} 0.0 0.0"/>
+                            o_xyz="0.0 0.0 ${arm_length/2}" o_rpy="0.0 0.0 0.0"/>
     </link>
 
     <link name="hand_link">
@@ -60,7 +60,7 @@
             <origin xyz="0.0 0.0 ${arm_length/2}" rpy="0.0 0.0 0.0"/>
         </collision>
         <xacro:cilinder_inertia m="1.0" r="${arm_radius}" h="${arm_length}"
-                            o_xyz="0.0 0.0 0.0" o_rpy="${pi/2.0} 0.0 0.0"/>
+                            o_xyz="0.0 0.0 ${arm_length/2}" o_rpy="0.0 0.0 0.0"/>
     </link>
 
 
