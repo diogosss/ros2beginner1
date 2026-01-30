@@ -3,7 +3,7 @@ int64 target_number
 float64 period
 ---
 # Result
-int64 reached_action
+int64 reached_number
 ---
-# Feedback (optional)
-in64 current_number
+# Feedback optional
+int64 current_number
