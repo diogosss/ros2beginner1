@@ -41,7 +41,8 @@ class CountUntilServerNode(Node):
             time.sleep(period)
 
         # Once done, set goal final state
-        goal_handle.succeed()
+        #goal_handle.succeed()
+        goal_handle.abort()
 
         # and send the result
         result = CountUntil.Result()
