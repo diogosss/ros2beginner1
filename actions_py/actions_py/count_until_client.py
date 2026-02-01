@@ -24,8 +24,8 @@ class CountUntilClientNode(Node):
         self.get_logger().info("Sending goal")
         self.count_until_client_.send_goal_async(goal, feedback_callback=self.goal_feedback_callback).add_done_callback(self.goal_response_callback, )
 
-        #Enviar a cancel request 2 seconds later
-        self.timer_ = self.create_timer(2.0, self.cancel_goal)
+        #Enviar a cancel request 2 seconds later solo para pruebas
+        # self.timer_ = self.create_timer(2.0, self.cancel_goal)
 
     def cancel_goal(self):
         self.get_logger().info("Sending cancel request...")
@@ -61,8 +61,9 @@ class CountUntilClientNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = CountUntilClientNode()
-    #node.send_goal(-6, 1.0)
+    node.send_goal(-6, 1.0)
     node.send_goal(6, 1.0)
+    node.send_goal(8, 0.7)
     rclpy.spin(node)
     rclpy.shutdown()
 
