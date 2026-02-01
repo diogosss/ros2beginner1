@@ -2,9 +2,11 @@
 import rclpy
 import time
 from rclpy.node import Node
-from rclpy.action import ActionServer, GoalResponse
+from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.action.server import ServerGoalHandle
 from my_robot_interfaces.action import CountUntil
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.callback_groups import ReentrantCallbackGroup
 
 
 class CountUntilServerNode(Node):
@@ -15,7 +17,9 @@ class CountUntilServerNode(Node):
             CountUntil,
             "count_until",
             goal_callback=self.goal_callback,
-            execute_callback= self.execute_callback )
+            cancel_callback=self.cancel_callback,
+            execute_callback= self.execute_callback,
+            callback_group=ReentrantCallbackGroup() )
         
         self.get_logger().info("Action server has been started")
 
@@ -35,8 +39,14 @@ class CountUntilServerNode(Node):
         #Execute the action
         self.get_logger().info("Executing the goal")
         feedback = CountUntil.Feedback()
+        result = CountUntil.Result()
         counter = 0
         for i in range(target_number):
+            if goal_handle.is_cancel_requested:
+                self.get_logger().info("Canceling the goal...")
+                goal_handle.canceled()
+                result.reached_number = counter
+                return result
             counter += 1
             self.get_logger().info(str(counter))
             feedback.current_number = counter
@@ -47,16 +57,19 @@ class CountUntilServerNode(Node):
         goal_handle.succeed()
         #goal_handle.abort()
 
-        # and send the result
-        result = CountUntil.Result()
+        # and send the result        
         result.reached_number = counter
         return result
+    
+    def cancel_callback(self, goal_handle: ServerGoalHandle):
+        self.get_logger().warn("RECEIVED CANCEL REQUEST")
+        return CancelResponse.ACCEPT # or REJECT
 
 
 def main(args=None):
     rclpy.init(args=args)
     node = CountUntilServerNode()
-    rclpy.spin(node)
+    rclpy.spin(node, MultiThreadedExecutor())
     rclpy.shutdown()
 
 if __name__ == "__main__":
