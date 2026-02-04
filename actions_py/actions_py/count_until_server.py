@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 import time
+import threading
 from rclpy.node import Node
 from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.action.server import ServerGoalHandle
@@ -12,6 +13,8 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 class CountUntilServerNode(Node):
     def __init__(self):
         super().__init__("count_until_server")
+        self.goal_handle_:ServerGoalHandle = None
+        self.goal_lock_ = threading.Lock()
         self.count_until_server_ = ActionServer(
             self,
             CountUntil,
@@ -25,6 +28,13 @@ class CountUntilServerNode(Node):
 
     def goal_callback(self, goal_request: CountUntil.Goal):
         self.get_logger().info("Received the goal ")
+        #TODO: Buscar info threading
+        with self.goal_lock_:
+            #Policy: eRefuse new goal if current goal is still active
+            if self.goal_handle_ is not None and self.goal_handle_.is_active:
+                self.get_logger().warn("A goal is already active, rejecting new goal..")
+                return GoalResponse.REJECT
+
         #Validate the goal request
         if goal_request.target_number <= 0:
             self.get_logger().warn("the goal was Rejected... ")
@@ -33,6 +43,9 @@ class CountUntilServerNode(Node):
         return GoalResponse.ACCEPT
 
     def execute_callback(self, goal_handle: ServerGoalHandle):
+        #obtener en el hilo qye se necesita consultar TODO: Buscar info threading
+        with self.goal_lock_:
+            self.goal_handle_ = goal_handle
         # Get request from goal
         target_number = goal_handle.request.target_number
         period = goal_handle.request.period
