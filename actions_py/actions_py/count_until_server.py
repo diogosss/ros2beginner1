@@ -15,11 +15,13 @@ class CountUntilServerNode(Node):
         super().__init__("count_until_server")
         self.goal_handle_:ServerGoalHandle = None
         self.goal_lock_ = threading.Lock()
+        self.goal_queue_ = []
         self.count_until_server_ = ActionServer(
             self,
             CountUntil,
             "count_until",
             goal_callback=self.goal_callback,
+            handle_accepted_callback=self.handle_accepted_callback,
             cancel_callback=self.cancel_callback,
             execute_callback= self.execute_callback,
             callback_group=ReentrantCallbackGroup() )
@@ -28,7 +30,7 @@ class CountUntilServerNode(Node):
 
     def goal_callback(self, goal_request: CountUntil.Goal):
         self.get_logger().info("Received the goal ")
-        # Policy: eRefuse new goal if current goal is still active TODO: Buscar info threading
+        # Policy1: eRefuse new goal if current goal is still active TODO: Buscar info threading
         # with self.goal_lock_:   
         #     if self.goal_handle_ is not None and self.goal_handle_.is_active:
         #         self.get_logger().warn("A goal is already active, rejecting new goal..")
@@ -39,15 +41,23 @@ class CountUntilServerNode(Node):
             self.get_logger().warn("the goal was Rejected... ")
             return GoalResponse.REJECT
         
-        # Policy: Preempt existing goal when receiving new goal
-        with self.goal_lock_:  
-            if self.goal_handle_ is not None and self.goal_handle_.is_active:
-                self.get_logger().warn("Abort current goal, and accpet new goal... preempt new goal..")
-                self.goal_handle_.abort()
+        # Policy2: Preempt existing goal when receiving new goal
+        # with self.goal_lock_:  
+        #     if self.goal_handle_ is not None and self.goal_handle_.is_active:
+        #         self.get_logger().warn("Abort current goal, and accpet new goal... preempt new goal..")
+        #         self.goal_handle_.abort()
 
 
         self.get_logger().info("Acepting the goal... ")
         return GoalResponse.ACCEPT
+    
+     # Policy3: Aceptar goal para tener en queue o a la cola otros recibidos despues
+    def handle_accepted_callback(self, goal_handle: ServerGoalHandle):
+        with self.goal_lock_:
+            if self.goal_handle_ is not None:
+                self.goal_queue_.append(goal_handle)
+            else:
+                goal_handle.execute()
 
     def execute_callback(self, goal_handle: ServerGoalHandle):
         #obtener en el hilo qye se necesita consultar TODO: Buscar info threading
@@ -64,11 +74,13 @@ class CountUntilServerNode(Node):
         for i in range(target_number):
             if not goal_handle.is_active:
                 result.reached_number = counter
+                self.process_next_goal_in_queue()
                 return result
             if goal_handle.is_cancel_requested:
                 self.get_logger().info("Canceling the goal...")
                 goal_handle.canceled()
                 result.reached_number = counter
+                self.process_next_goal_in_queue()
                 return result
             counter += 1
             self.get_logger().info(str(counter))
@@ -82,11 +94,19 @@ class CountUntilServerNode(Node):
 
         # and send the result        
         result.reached_number = counter
+        self.process_next_goal_in_queue()
         return result
     
     def cancel_callback(self, goal_handle: ServerGoalHandle):
         self.get_logger().warn("RECEIVED CANCEL REQUEST")
         return CancelResponse.ACCEPT # or REJECT
+    
+    def process_next_goal_in_queue(self):
+        with self.goal_lock_:
+            if len(self.goal_queue_) > 0:
+                self.goal_queue_.pop(0).execute()
+            else:
+                self.goal_handle_ = None
 
 
 def main(args=None):
