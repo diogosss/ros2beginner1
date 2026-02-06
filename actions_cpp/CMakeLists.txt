@@ -13,14 +13,14 @@ find_package(rclcpp_action REQUIRED)
 
 
 add_executable(count_until_server src/count_until_server.cpp)
-ament_target_dependencies(count_until_server rclcpp my_robot_interfaces) 
+ament_target_dependencies(count_until_server rclcpp rclcpp_action my_robot_interfaces) 
 
 
 
 # instalar en algun ligar de projecty name
 install(TARGETS
   count_until_server
-  DESTINATION lib/${PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME}/
 )
 
 # if(BUILD_TESTING)
