@@ -26,12 +26,15 @@ private:
         const rclcpp_action::GoalUUID &uuid,
          std::shared_ptr<const CountUntil::Goal> goal)
          {
+            (void) uuid;
+            (void) goal;
             return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
          }
 
     rclcpp_action::CancelResponse cancel_callback(
         const std::shared_ptr<CountUntilGoalHandle> goal_handle)
          {
+            (void)goal_handle;
             return rclcpp_action::CancelResponse::ACCEPT;
          }
 
