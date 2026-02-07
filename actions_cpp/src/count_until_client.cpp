@@ -6,6 +6,7 @@ using CountUntil = my_robot_interfaces::action::CountUntil;
 using CountUntilGoalHandle = rclcpp_action::ClientGoalHandle<CountUntil>;
 using namespace std::placeholders;
 
+//V0 - Client
 class CountUntilClientNode : public rclcpp::Node
 {
 public:
