@@ -68,7 +68,8 @@ private:
         //set the final state an return result
         auto result = std::make_shared<CountUntil::Result>();
         result->reached_number = counter;
-        goal_handle->succeed(result);
+        //goal_handle->succeed(result);
+        goal_handle->abort(result);
     }
 
     rclcpp_action::Server<CountUntil>::SharedPtr count_until_server_;

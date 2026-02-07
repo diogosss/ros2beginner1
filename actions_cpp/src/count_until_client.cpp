@@ -50,6 +50,14 @@ private:
     //Callback received the result once the goal is done
     void goal_result_callback(const CountUntilGoalHandle::WrappedResult &result)
     {
+        auto status = result.code;
+        if(status == rclcpp_action::ResultCode::SUCCEEDED)
+        {
+            RCLCPP_INFO(this->get_logger(), "Succeeded..");
+        }else if(status == rclcpp_action::ResultCode::ABORTED)
+        {
+            RCLCPP_ERROR(this->get_logger(), "Aborted..");
+        }
         int reached_number = result.result->reached_number;
         RCLCPP_INFO(this->get_logger(), "Result: %d",reached_number);
     }
@@ -61,7 +69,7 @@ private:
 int main(int argsc, char **argv){
     rclcpp::init(argsc, argv);
     auto node = std::make_shared<CountUntilClientNode>();
-    node->send_goal(-6,0.7);
+    node->send_goal(6,0.7);
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
