@@ -59,17 +59,21 @@ private:
         //Execute the action
         rclcpp::Rate loop_rate(1.0/period);
         int counter = 0;
+        auto feedback = std::make_shared<CountUntil::Feedback>();
         for(int i = 0; i < target_number; i++){
             counter++;
             RCLCPP_INFO(this->get_logger(), "%d", counter);
+            feedback->current_number = counter;
+            goal_handle->publish_feedback(feedback);
             loop_rate.sleep();
         }
 
         //set the final state an return result
         auto result = std::make_shared<CountUntil::Result>();
         result->reached_number = counter;
-        //goal_handle->succeed(result);
-        goal_handle->abort(result);
+        //goal_handle->abort(result);
+        goal_handle->succeed(result);
+        
     }
 
     rclcpp_action::Server<CountUntil>::SharedPtr count_until_server_;

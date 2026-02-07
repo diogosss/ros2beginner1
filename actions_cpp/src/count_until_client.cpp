@@ -29,6 +29,7 @@ public:
         auto options = rclcpp_action::Client<CountUntil>::SendGoalOptions();
         options.result_callback = std::bind(&CountUntilClientNode::goal_result_callback, this, _1);
         options.goal_response_callback = std::bind(&CountUntilClientNode::goal_response_callback,this, _1);
+        options.feedback_callback = std::bind(&CountUntilClientNode::feedback_callback,this, _1, _2);
 
         //Enviar el goal
         RCLCPP_INFO(this->get_logger(), "Sending a goal...");
@@ -36,6 +37,14 @@ public:
     }
 
 private:
+
+    //Callback para obtener el feedback
+    void feedback_callback(const CountUntilGoalHandle::SharedPtr &goal_handle, const std::shared_ptr<const CountUntil::Feedback> feedback){
+
+        (void)goal_handle;
+        int number = feedback->current_number;
+        RCLCPP_INFO(this->get_logger(), "Got feedback: %d",number);
+    }
 
     //Callback to know if the goal was accepted or rejected
     void goal_response_callback(const CountUntilGoalHandle::SharedPtr &goal_handle)
