@@ -25,9 +25,10 @@ public:
         goal.target_number = target_number;
         goal.period= period;
 
-        // Add callbacks
+        // Add callbacks register the functions or goalscallbacks
         auto options = rclcpp_action::Client<CountUntil>::SendGoalOptions();
         options.result_callback = std::bind(&CountUntilClientNode::goal_result_callback, this, _1);
+        options.goal_response_callback = std::bind(&CountUntilClientNode::goal_response_callback,this, _1);
 
         //Enviar el goal
         RCLCPP_INFO(this->get_logger(), "Sending a goal...");
@@ -35,6 +36,16 @@ public:
     }
 
 private:
+
+    //Callback to know if the goal was accepted or rejected
+    void goal_response_callback(const CountUntilGoalHandle::SharedPtr &goal_handle)
+    {
+        if(!goal_handle){
+            RCLCPP_WARN(this->get_logger(), "Goal was rejected.");
+        }else{
+            RCLCPP_INFO(this->get_logger(), "Goal was accepted.");
+        }
+    }
 
     //Callback received the result once the goal is done
     void goal_result_callback(const CountUntilGoalHandle::WrappedResult &result)
@@ -50,7 +61,7 @@ private:
 int main(int argsc, char **argv){
     rclcpp::init(argsc, argv);
     auto node = std::make_shared<CountUntilClientNode>();
-    node->send_goal(6,0.7);
+    node->send_goal(-6,0.7);
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
