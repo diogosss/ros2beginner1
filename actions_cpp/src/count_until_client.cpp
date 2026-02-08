@@ -34,9 +34,20 @@ public:
         //Enviar el goal
         RCLCPP_INFO(this->get_logger(), "Sending a goal...");
         count_until_client_->async_send_goal(goal, options);
+
+        //Enviar una señal de cancel para test Canceling goal
+        timer_ = this->create_wall_timer(std::chrono::seconds(2),std::bind(&CountUntilClientNode::timer_callback, this));
     }
 
 private:
+
+    //Callbak del timer de prueba del canceling
+    void timer_callback()
+    {
+        RCLCPP_INFO(this->get_logger(), "Sending a cancel goal..");
+        count_until_client_->async_cancel_goal(goal_handle_);
+        timer_->cancel();    
+    }
 
     //Callback para obtener el feedback
     void feedback_callback(const CountUntilGoalHandle::SharedPtr &goal_handle, const std::shared_ptr<const CountUntil::Feedback> feedback){
@@ -52,6 +63,7 @@ private:
         if(!goal_handle){
             RCLCPP_WARN(this->get_logger(), "Goal was rejected.");
         }else{
+            this->goal_handle_ = goal_handle; //obtener el goal hadle luego de qe el server acepte y usarlo en el metodo timerCallback
             RCLCPP_INFO(this->get_logger(), "Goal was accepted.");
         }
     }
@@ -66,6 +78,9 @@ private:
         }else if(status == rclcpp_action::ResultCode::ABORTED)
         {
             RCLCPP_ERROR(this->get_logger(), "Aborted..");
+        }else if(status == rclcpp_action::ResultCode::CANCELED)
+        {
+            RCLCPP_WARN(this->get_logger(), "Canceled..");
         }
         int reached_number = result.result->reached_number;
         RCLCPP_INFO(this->get_logger(), "Result: %d",reached_number);
@@ -73,12 +88,16 @@ private:
 
     rclcpp_action::Client<CountUntil>::SharedPtr count_until_client_;
 
+    rclcpp::TimerBase::SharedPtr timer_;
+
+    CountUntilGoalHandle::SharedPtr goal_handle_;
+
 };
 
 int main(int argsc, char **argv){
     rclcpp::init(argsc, argv);
     auto node = std::make_shared<CountUntilClientNode>();
-    node->send_goal(6,0.7);
+    node->send_goal(9,0.7);
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
