@@ -36,7 +36,7 @@ public:
         count_until_client_->async_send_goal(goal, options);
 
         //Enviar una señal de cancel para test Canceling goal
-        timer_ = this->create_wall_timer(std::chrono::seconds(2),std::bind(&CountUntilClientNode::timer_callback, this));
+        //timer_ = this->create_wall_timer(std::chrono::seconds(2),std::bind(&CountUntilClientNode::timer_callback, this));
     }
 
 private:
