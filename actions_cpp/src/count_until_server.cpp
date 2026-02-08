@@ -35,21 +35,35 @@ private:
 
             //Policy2: refuse new goal if one goal is active
             //Lock del thread   -> googlear scope en c++ lock y mutex
-            {
-                std::lock_guard<std::mutex> lock(mutex_);
-                if(goal_handle_){
-                    if(goal_handle_->is_active()){
-                        RCLCPP_WARN(this->get_logger(), "A goal is still active, reject new goal...");
-                        return rclcpp_action::GoalResponse::REJECT;
-                    }
-                }
-            }  
+            // {
+            //     std::lock_guard<std::mutex> lock(mutex_);
+            //     if(goal_handle_){
+            //         if(goal_handle_->is_active()){
+            //             RCLCPP_WARN(this->get_logger(), "A goal is still active, reject new goal...");
+            //             return rclcpp_action::GoalResponse::REJECT;
+            //         }
+            //     }
+            // }  
             
 
             if(goal->target_number <= 0.0){
                 RCLCPP_WARN(this->get_logger(), "Rejecting the goal");
                 return rclcpp_action::GoalResponse::REJECT;
             }            
+
+
+            //Policy3: Preempt the existing goal when receiving new valid goal
+            //Lock del thread   -> googlear scope en c++ lock y mutex
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                if(goal_handle_){
+                    if(goal_handle_->is_active()){
+                        preemted_goal_id_ = goal_handle_->get_goal_id();
+                        RCLCPP_WARN(this->get_logger(), "A new goal is received, Abort current goal & accept new goal...");
+                    }
+                }
+            }  
+
             RCLCPP_INFO(this->get_logger(), "Accepting the goal");
             return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
          }
@@ -87,6 +101,16 @@ private:
         //set the final state an return result
         auto result = std::make_shared<CountUntil::Result>();
         for(int i = 0; i < target_number; i++){
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                if(goal_handle->get_goal_id()== preemted_goal_id_)
+                {
+                    result->reached_number = counter;
+                    goal_handle->abort(result);
+                    return;
+                }
+                
+            }            
             if(goal_handle->is_canceling()){
                 result->reached_number = counter;
                 goal_handle->canceled(result);
@@ -113,6 +137,8 @@ private:
     std::shared_ptr<CountUntilGoalHandle> goal_handle_;
 
     std::mutex mutex_;
+
+    rclcpp_action::GoalUUID preemted_goal_id_;
 
 };
 
