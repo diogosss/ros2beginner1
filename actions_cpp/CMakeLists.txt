@@ -22,12 +22,17 @@ add_executable(count_until_server_queue_goals src/count_until_server_queue_goals
 ament_target_dependencies(count_until_server_queue_goals rclcpp rclcpp_action my_robot_interfaces) 
 
 
+add_executable(move_robot_server src/move_robot_server.cpp)
+ament_target_dependencies(move_robot_server rclcpp rclcpp_action my_robot_interfaces) 
+
+
 
 # instalar en algun ligar de projecty name
 install(TARGETS
   count_until_server
   count_until_client
   count_until_server_queue_goals
+  move_robot_server
   DESTINATION lib/${PROJECT_NAME}/
 )
 
