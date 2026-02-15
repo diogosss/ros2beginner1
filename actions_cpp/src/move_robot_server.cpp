@@ -10,7 +10,7 @@ using namespace std::placeholders;
 class MoveRobotServerNode : public rclcpp::Node
 {
 public:
-    MoveRobotServerNode() : Node("count_until_server")
+    MoveRobotServerNode() : Node("count_until_server"), robot_position_(50)   
     {
         cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
         move_robot_server_ = rclcpp_action::create_server<MoveRobot>(
@@ -22,6 +22,7 @@ public:
             rcl_action_server_get_default_options(),
             cb_group_
         );
+
         RCLCPP_INFO(this->get_logger(), "Action server has been started...");
     }
 private:
@@ -75,44 +76,78 @@ private:
         {
             std::lock_guard<std::mutex> lock(mutex_);
             this->goal_handle_ = goal_handle;
-        }        
+        }       
+        
+        //Initial position
 
         //Get reuqest from goal
-        int position = goal_handle->get_goal()->position;
+        int goal_position = goal_handle->get_goal()->position;
         int velocity = goal_handle->get_goal()->velocity;
 
         //Execute the action
         rclcpp::Rate loop_rate(1.0/velocity);
-        int counter = 0;
+
         auto feedback = std::make_shared<MoveRobot::Feedback>();
         //set the final state an return result
         auto result = std::make_shared<MoveRobot::Result>();
         //****Logica del robot*****
-        // for(int i = 0; i < target_number; i++){
-        //     {
-        //         std::lock_guard<std::mutex> lock(mutex_);
-        //         if(goal_handle->get_goal_id()== preemted_goal_id_)
-        //         {
-        //             result->reached_number = counter;
-        //             goal_handle->abort(result);
-        //             return;
-        //         }
-                
-        //     }            
-        //     if(goal_handle->is_canceling()){
-        //         result->reached_number = counter;
-        //         goal_handle->canceled(result);
-        //         return;
-        //     }
-        //     counter++;
-        //     RCLCPP_INFO(this->get_logger(), "%d", counter);
-        //     feedback->current_number = counter;
-        //     goal_handle->publish_feedback(feedback);
-        //     loop_rate.sleep();
-        // }
+        while(rclcpp::ok){
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                if(goal_handle->get_goal_id()== preemted_goal_id_)
+                {
+                    //result->reached_number = counter;
+                    goal_handle->abort(result);
+                    return;
+                }                
+            }            
+            if(goal_handle->is_canceling()){
+                //result->reached_number = counter;
+                goal_handle->canceled(result);
+                return;
+            }
+
+            int diff = goal_position - robot_position_;
+
+            if(diff==0)
+            {
+                result->position = robot_position_;
+                result->message = "Finished";
+                goal_handle->succeed(result);
+                return;
+            }
+            if(diff>0)
+            {
+                if(diff>=velocity)
+                {
+                    robot_position_ += velocity;
+                }
+                else
+                {
+                    robot_position_ += diff;
+                }
+            }
+            else
+            {
+                if(abs(diff)>=velocity)
+                {
+                    robot_position_ -= velocity;
+                }
+                else
+                {
+                    robot_position_ -= abs(diff);
+                }
+            }
+            
+            
+            RCLCPP_INFO(this->get_logger(), "Robot positiiom: %d", robot_position_);
+            feedback->current_position = robot_position_;
+            goal_handle->publish_feedback(feedback);
+            loop_rate.sleep();
+        }           
 
         
-        result->position = counter;
+        result->position = robot_position_;
         result->message = "Finished";
         //goal_handle->abort(result);
         goal_handle->succeed(result);
@@ -128,6 +163,8 @@ private:
     std::mutex mutex_;
 
     rclcpp_action::GoalUUID preemted_goal_id_;
+
+    int robot_position_;
 
 };
 
