@@ -84,7 +84,7 @@ private:
         int velocity = goal_handle->get_goal()->velocity;
 
         //Execute the action
-        rclcpp::Rate loop_rate(1.0/velocity);
+        rclcpp::Rate loop_rate(1.0);
 
         auto feedback = std::make_shared<MoveRobot::Feedback>();
         //set the final state an return result
