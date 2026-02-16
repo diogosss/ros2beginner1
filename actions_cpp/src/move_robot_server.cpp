@@ -96,13 +96,13 @@ private:
                 std::lock_guard<std::mutex> lock(mutex_);
                 if(goal_handle->get_goal_id()== preemted_goal_id_)
                 {
-                    //result->reached_number = counter;
+                    result->position = robot_position_;
                     goal_handle->abort(result);
                     return;
                 }                
             }            
             if(goal_handle->is_canceling()){
-                //result->reached_number = counter;
+                result->position = robot_position_;
                 goal_handle->canceled(result);
                 return;
             }
