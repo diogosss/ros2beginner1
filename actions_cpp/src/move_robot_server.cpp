@@ -32,10 +32,9 @@ private:
          std::shared_ptr<const MoveRobot::Goal> goal)
          {
             (void) uuid;
-            RCLCPP_INFO(this->get_logger(), "Received a goal");
-            
+            RCLCPP_INFO(this->get_logger(), "Received a goal");            
 
-            if(goal->position <= 0.0){
+            if((goal->position > 100 || goal->position < 0) || (goal->velocity <=0)){
                 RCLCPP_WARN(this->get_logger(), "Rejecting the goal");
                 return rclcpp_action::GoalResponse::REJECT;
             }            
