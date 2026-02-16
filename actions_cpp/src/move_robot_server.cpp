@@ -24,6 +24,7 @@ public:
         );
 
         RCLCPP_INFO(this->get_logger(), "Action server has been started...");
+        RCLCPP_INFO(this->get_logger(), "Robot position: %d", robot_position_);
     }
 private:
 
@@ -96,12 +97,14 @@ private:
                 if(goal_handle->get_goal_id()== preemted_goal_id_)
                 {
                     result->position = robot_position_;
+                    result->message = "Aborted-> Preemted by another goal";
                     goal_handle->abort(result);
                     return;
                 }                
             }            
             if(goal_handle->is_canceling()){
                 result->position = robot_position_;
+                result->message = "Canceled";
                 goal_handle->canceled(result);
                 return;
             }
@@ -163,7 +166,13 @@ private:
 
     rclcpp_action::GoalUUID preemted_goal_id_;
 
-    int robot_position_;
+    // 2. Aquí es el mejor lugar para colocar la variable
+    // Representa el estado interno del robot, por lo que debe ser privada.
+    int robot_position_; 
+    
+    // Si usas múltiples hilos (MultiThreadedExecutor), 
+    // considera usar std::atomic para evitar condiciones de carrera:
+    // std::atomic<int> robot_position_;
 
 };
 

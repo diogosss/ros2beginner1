@@ -54,8 +54,13 @@ private:
     //Callbak del timer de prueba del canceling
     void cancel_action_callback()
     {
-        RCLCPP_INFO(this->get_logger(), "Sending a cancel goal..");
-        move_robot_client_->async_cancel_goal(goal_handle_);
+        if(this->goal_handle_)
+        {
+            RCLCPP_INFO(this->get_logger(), "Sending a cancel goal..");
+            move_robot_client_->async_cancel_goal(goal_handle_);
+            goal_handle_.reset();
+        }
+        
     }
 
     //Callback para obtener el feedback
