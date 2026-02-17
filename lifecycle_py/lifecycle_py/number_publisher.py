@@ -20,7 +20,8 @@ class NumberPublisherNode(LifecycleNode):
         self.get_logger().info("IN on_configure.")
         self.number_publisher_ = self.create_lifecycle_publisher(Int64, "number", 10) # no se activa, no publica hasta estar en estado Activo el lifecycle node
         self.number_timer_ = self.create_timer(
-            1.0 / self.publish_frequency_, self.publish_number)        
+            1.0 / self.publish_frequency_, self.publish_number)   
+        self.number_timer_.cancel()     
         return TransitionCallbackReturn.SUCCESS  # or FAILURE
     
     # Aqui se limpia para regresar al estado Unconfigured, destroy ROS comunicatiosn from hardware
@@ -33,11 +34,13 @@ class NumberPublisherNode(LifecycleNode):
     # Activar el estado del nodo example Hardwarea
     def on_activate(self, previous_state: LifecycleState):
         self.get_logger().info("IN on_activate.")
+        self.number_timer_.reset()   
         return super().on_activate(previous_state) # activa todo el nodo
     
     # Desactivar el estado del nodo 
     def on_deactivate(self, previous_state: LifecycleState):
         self.get_logger().info("IN on_deactivate.")
+        self.number_timer_.cancel()
         return super().on_deactivate(previous_state) # desactiva todo el nodo
     
 
