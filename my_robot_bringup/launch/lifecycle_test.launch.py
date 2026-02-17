@@ -26,3 +26,5 @@ def generate_launch_description():
     ld.add_action(lifecycle_node_manager)
 
     return ld
+
+# ros2 launch my_robot_bringup lifecycle_test.launch.py
