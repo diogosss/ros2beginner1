@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             "number_publisher = lifecycle_py.number_publisher:main",
+            "lifecycle_node_manager = lifecycle_py.lifecycle_node_manager:main"
         ],
     },
 )
