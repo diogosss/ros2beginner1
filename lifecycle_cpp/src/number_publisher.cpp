@@ -31,7 +31,7 @@ public:
     LifecycleCallbackReturn on_activate(const rclcpp_lifecycle::State &previous_state)
     {
         RCLCPP_INFO(this->get_logger(), "IN on_activate");
-        number_timer_->reset();
+        number_timer_->reset(); // en el metod en el timer 
         rclcpp_lifecycle::LifecycleNode::on_activate(previous_state);
         return LifecycleCallbackReturn::SUCCESS;
     }
@@ -39,7 +39,7 @@ public:
     LifecycleCallbackReturn on_deactivate(const rclcpp_lifecycle::State &previous_state)
     {
         RCLCPP_INFO(this->get_logger(), "IN on_deactivate");
-        number_timer_->cancel();
+        number_timer_->cancel(); // 
         rclcpp_lifecycle::LifecycleNode::on_deactivate(previous_state);
         return LifecycleCallbackReturn::SUCCESS;
     }
@@ -48,7 +48,7 @@ public:
     {
         (void)previous_state;
         RCLCPP_INFO(this->get_logger(), "IN on_cleanup");
-        number_publisher_.reset();
+        number_publisher_.reset(); //checkar porque se usa (.) y no (->)  . en el shared ptr puntero -> en la variable
         number_timer_.reset();
         return LifecycleCallbackReturn::SUCCESS;
     }
@@ -57,8 +57,8 @@ public:
     {
         (void)previous_state;
         RCLCPP_INFO(this->get_logger(), "IN on_shutdown");
-        number_publisher_.reset();
-        number_timer_.reset();
+        number_publisher_.reset(); //
+        number_timer_.reset();  //
         return LifecycleCallbackReturn::SUCCESS;
     }
 
@@ -66,8 +66,8 @@ public:
     {
         (void)previous_state;
         RCLCPP_INFO(this->get_logger(), "IN on_error");
-        number_publisher_.reset();
-        number_timer_.reset();
+        number_publisher_.reset(); //
+        number_timer_.reset(); //
         return LifecycleCallbackReturn::FAILURE;
     }
 
