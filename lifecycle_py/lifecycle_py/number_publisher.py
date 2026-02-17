@@ -23,6 +23,11 @@ class NumberPublisherNode(LifecycleNode):
             1.0 / self.publish_frequency_, self.publish_number)   
         self.number_timer_.cancel()     
         return TransitionCallbackReturn.SUCCESS  # or FAILURE
+        # Test de error 1
+        #return TransitionCallbackReturn.ERROR
+        # Test de error 2
+        #raise Exception()
+        #return TransitionCallbackReturn.SUCCESS  # or FAILURE
     
     # Aqui se limpia para regresar al estado Unconfigured, destroy ROS comunicatiosn from hardware
     def on_cleanup(self, previous_state: LifecycleState):
@@ -50,6 +55,16 @@ class NumberPublisherNode(LifecycleNode):
         self.destroy_lifecycle_publisher(self.number_publisher_)
         self.destroy_timer(self.number_timer_)
         return TransitionCallbackReturn.SUCCESS  # or FAILURE
+    
+
+    # Error deactivate clean up
+    def on_error(self, previous_state: LifecycleState):
+        self.get_logger().info("IN on_error.")
+        self.destroy_lifecycle_publisher(self.number_publisher_)
+        self.destroy_timer(self.number_timer_)
+        # do some checks if Ok the retunr SUCCESS, if not FAILURE
+
+        return TransitionCallbackReturn.SUCCESS  # or FAILURE -> va a finished
     
 
     
