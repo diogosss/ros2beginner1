@@ -24,12 +24,15 @@ class MoveRobotServerNode(LifecycleNode):
     ##LIFECYCLE METHODS
 
     def on_configure(self, previous_state: LifecycleState):
+        # Recibir un parametro para modificar el Server Name para multiples servers
+        self.declare_parameter("robot_name", rclpy.Parameter.Type.STRING)
+        self.robot_name_ = self.get_parameter("robot_name").value
         self.get_logger().info("IN on_configure.")
         # Configurar el server
         self.move_robot_server_ = ActionServer(
             self,
             MoveRobot,
-            "move_robot",
+            "move_robot"+ self.robot_name_,
             goal_callback=self.goal_callback,
             cancel_callback=self.cancel_callback,
             execute_callback=self.execute_callback,
@@ -39,6 +42,8 @@ class MoveRobotServerNode(LifecycleNode):
     
     def on_cleanup(self, previous_state: LifecycleState):
         self.get_logger().info("IN on_cleanup.")
+        self.undeclare_parameter("robot_name")
+        self.robot_name_ = ""
         self.move_robot_server_.destroy()
         return TransitionCallbackReturn.SUCCESS
     
@@ -57,6 +62,8 @@ class MoveRobotServerNode(LifecycleNode):
     
     def on_shutdown(self, previous_state: LifecycleState):
         self.get_logger().info("IN on_shutdown.")
+        self.undeclare_parameter("robot_name")
+        self.robot_name_ = ""
         self.move_robot_server_.destroy()
         return TransitionCallbackReturn.SUCCESS
     
@@ -149,3 +156,18 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
+
+
+ # Levantar robot A
+ # ros2 run lifecycle_py move_robot_server --ros-args -r __node:=move_robot_server_a -p robot_name:=A
+ # Pasar estado configure
+ #  ros2 lifecycle set /move_robot_server_a configure
+ # Activar 
+ # ros2 lifecycle set /move_robot_server_a activate
+
+ # Levantar robot B
+ # ros2 run lifecycle_py move_robot_server --ros-args -r __node:=move_robot_server_b -p robot_name:=B
+ # Pasar estado configure
+ #  ros2 lifecycle set /move_robot_server_b configure
+ # Activar 
+ # ros2 lifecycle set /move_robot_server_b activate
