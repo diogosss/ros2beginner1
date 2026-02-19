@@ -1,0 +1,19 @@
+<launch>
+    <node pkg="lifecycle_py" exec="move_robot_server" name="move_robot_server_a">
+        <param name="robot_name" value="A"/>
+    </node>
+    <node pkg="lifecycle_py" exec="move_robot_server" name="move_robot_server_b">
+        <param name="robot_name" value="B"/>
+    </node>
+</launch>
+
+<!-- 
+ros2 launch my_robot_bringup move_robot.launch.xml
+ ros2 lifecycle nodes
+ ros2 action list
+ ros2 lifecycle set /move_robot_server_a configure
+ ros2 lifecycle set /move_robot_server_b configure
+ ros2 action list
+ ros2 lifecycle set /move_robot_server_a activate
+ ros2 lifecycle set /move_robot_server_b activate
+  -->
