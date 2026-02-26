@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            "manual_composition = components_py.manual_composition:main"
         ],
     },
 )
