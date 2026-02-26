@@ -9,16 +9,18 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
+#para encontrar los hpp files
+include_directories(include)
+
+add_executable(manual_composition src/manual_composition.cpp src/node1.cpp src/node2.cpp) #no olvidar la dirección de los node1.cpp node2.cpp
+ament_target_dependencies(manual_composition rclcpp) 
+
+
+
+# instalar en algun ligar de projecty name
+install(TARGETS
+  manual_composition
+  DESTINATION lib/${PROJECT_NAME}/
+)
 
 ament_package()
