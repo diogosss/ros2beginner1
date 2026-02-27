@@ -8,14 +8,27 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(example_interfaces REQUIRED)
 
 #para encontrar los hpp files
 include_directories(include)
 
+#Crear compoente (plugin)
+add_library(number_pub_component SHARED src/number_publisher.cpp)
+ament_target_dependencies(number_pub_component rclcpp rclcpp_components example_interfaces)
+rclcpp_components_register_nodes(number_pub_component "my_namespace::NumberPublisher")
+
 add_executable(manual_composition src/manual_composition.cpp src/node1.cpp src/node2.cpp) #no olvidar la dirección de los node1.cpp node2.cpp
 ament_target_dependencies(manual_composition rclcpp) 
 
-
+#Crear compoente (plugin)
+install(TARGETS
+  number_pub_component
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
 # instalar en algun ligar de projecty name
 install(TARGETS
