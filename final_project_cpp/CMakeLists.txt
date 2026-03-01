@@ -10,10 +10,12 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(my_robot_interfaces REQUIRED) 
 find_package(turtlesim REQUIRED) 
+find_package(rclcpp_action REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 
 add_executable(turtle_controller src/turtle_controller.cpp)
-ament_target_dependencies(turtle_controller rclcpp my_robot_interfaces turtlesim) 
+ament_target_dependencies(turtle_controller rclcpp my_robot_interfaces turtlesim rclcpp_action geometry_msgs) 
 
 # instalar en algun ligar de projecty name
 install(TARGETS
