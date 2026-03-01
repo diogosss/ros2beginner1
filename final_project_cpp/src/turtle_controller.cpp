@@ -18,19 +18,20 @@ class TurtleController : public rclcpp_lifecycle::LifecycleNode
 { 
 public:
     TurtleController() : LifecycleNode("turtle_controller")   
-    {        
-
+    {  
         server_activated_ = false;
+        //declaraa parametro
+        this->declare_parameter("turtle_name", rclcpp::PARAMETER_STRING);
         turtle_name_="";
-        cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
-        
+        server_activated_ = false;
+        cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);       
     }
 
     LifecycleCallbackReturn on_configure(const rclcpp_lifecycle::State &previous_state)
     {
         (void)previous_state;
         RCLCPP_INFO(this->get_logger(), "IN on_configure");
-        this->declare_parameter("turtle_name", rclcpp::PARAMETER_STRING);
+        //Obtener p}valor paramtro
         turtle_name_ = this->get_parameter("turtle_name").as_string();
         //Service server para kill y spawn
         kill_turtle_client_ = this->create_client<turtlesim::srv::Kill>("/kill", rclcpp::ServicesQoS(), cb_group_);
@@ -49,6 +50,8 @@ public:
             rcl_action_server_get_default_options(),
             cb_group_
         );
+        //Spawn Turtle
+        spawnTurtle();
         RCLCPP_INFO(this->get_logger(), "Action server has been started...");
         return LifecycleCallbackReturn::SUCCESS;
     }
@@ -57,8 +60,7 @@ public:
     {
         (void)previous_state;
         RCLCPP_INFO(this->get_logger(), "IN on_activate");
-        //Spawn Turtle
-        spawn_turtle_thread_ = std::thread(std::bind(&TurtleController::spawnTurtle,this));
+        
         server_activated_ = true;
         rclcpp_lifecycle::LifecycleNode::on_activate(previous_state);
         return LifecycleCallbackReturn::SUCCESS;
@@ -87,7 +89,12 @@ public:
         (void)previous_state;
         turtle_name_ = "";
         this->undeclare_parameter("robot_name");
+        killTurtle();
         move_turtle_server_.reset();
+        spawn_turtle_client_.reset();
+        cmd_vel_publisher_.reset();
+        kill_turtle_client_.reset();
+        
         return LifecycleCallbackReturn::SUCCESS;
     }
 
@@ -95,8 +102,13 @@ public:
     {
         (void)previous_state;
         turtle_name_ = "";
+        server_activated_ = false;
         this->undeclare_parameter("robot_name");
+        killTurtle();
         move_turtle_server_.reset();
+        spawn_turtle_client_.reset();
+        cmd_vel_publisher_.reset();
+        kill_turtle_client_.reset();        
         return LifecycleCallbackReturn::SUCCESS;
     }
 
@@ -110,6 +122,12 @@ private:
     {
         (void) uuid;
         RCLCPP_INFO(this->get_logger(), "Received a goal");
+
+        //Check if node is Activated
+        if(!server_activated_){
+            RCLCPP_WARN(this->get_logger(), "Server not activated yet");
+            return rclcpp_action::GoalResponse::REJECT;
+        }
 
         //Policy2: refuse new goal if one goal is active
         {
@@ -179,6 +197,14 @@ private:
         RCLCPP_INFO(this->get_logger(), "Iniciando movimiento por %f segundos", duration_sec);
         // 3. Bucle de control dinámico
         while (rclcpp::ok() && (this->now() - start_time).seconds() < duration_sec) {
+            //Si el robot se desactiva
+            if(!server_activated_){
+                stop_turtle();
+                result->success = false;
+                result->message = "Aborted server was deactivated";
+                goal_handle->abort(result);
+                return;
+            }
             //Verificar si se cancelo         
             if(goal_handle->is_canceling())
             {
@@ -266,9 +292,6 @@ private:
     rclcpp::Client<turtlesim::srv::Kill>::SharedPtr kill_turtle_client_;
     rclcpp::Client<turtlesim::srv::Spawn>::SharedPtr spawn_turtle_client_;
     std::string turtle_name_;
-
-    std::thread spawn_turtle_thread_;
-    std::thread kill_turtle_thread_;
 
     rclcpp::CallbackGroup::SharedPtr cb_group_;
 
