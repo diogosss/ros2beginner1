@@ -12,10 +12,11 @@ find_package(my_robot_interfaces REQUIRED)
 find_package(turtlesim REQUIRED) 
 find_package(rclcpp_action REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 
 
 add_executable(turtle_controller src/turtle_controller.cpp)
-ament_target_dependencies(turtle_controller rclcpp my_robot_interfaces turtlesim rclcpp_action geometry_msgs) 
+ament_target_dependencies(turtle_controller rclcpp my_robot_interfaces turtlesim rclcpp_action geometry_msgs rclcpp_lifecycle) 
 
 # instalar en algun ligar de projecty name
 install(TARGETS

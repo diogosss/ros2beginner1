@@ -8,34 +8,25 @@
 
 using namespace std::chrono_literals;
 using namespace std::placeholders;
-using LifecycleCallbackReturn =
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 using Twist = geometry_msgs::msg::Twist;
 using MoveTurtle = my_robot_interfaces::action::MoveTurtle;
 using MoveTurtleGoalHandle = rclcpp_action::ServerGoalHandle<MoveTurtle>;
 
-class TurtleController : public rclcpp_lifecycle::LifecycleNode 
+class TurtleController : public rclcpp::Node  
 { 
 public:
-    TurtleController() : LifecycleNode("turtle_controller")   
+    TurtleController() : Node("turtle_controller")   
     {        
 
-        server_activated_ = false;
-        turtle_name_="";
-        cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
-        
-    }
-
-    LifecycleCallbackReturn on_configure(const rclcpp_lifecycle::State &previous_state)
-    {
-        (void)previous_state;
-        RCLCPP_INFO(this->get_logger(), "IN on_configure");
         this->declare_parameter("turtle_name", rclcpp::PARAMETER_STRING);
         turtle_name_ = this->get_parameter("turtle_name").as_string();
         //Service server para kill y spawn
         kill_turtle_client_ = this->create_client<turtlesim::srv::Kill>("/kill", rclcpp::ServicesQoS(), cb_group_);
         spawn_turtle_client_ = this->create_client<turtlesim::srv::Spawn>("/spawn",rclcpp::ServicesQoS(), cb_group_);
      
+        //Spawn Turtle
+        spawn_turtle_thread_ = std::thread(std::bind(&TurtleController::spawnTurtle,this));
+
         //Publisher Vel to turtle sim
         cmd_vel_publisher_ = this -> create_publisher<Twist>("/"+turtle_name_+"/cmd_vel",10);
 
@@ -49,57 +40,9 @@ public:
             rcl_action_server_get_default_options(),
             cb_group_
         );
-        RCLCPP_INFO(this->get_logger(), "Action server has been started...");
-        return LifecycleCallbackReturn::SUCCESS;
+        cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+        
     }
-
-    LifecycleCallbackReturn on_activate(const rclcpp_lifecycle::State &previous_state)
-    {
-        (void)previous_state;
-        RCLCPP_INFO(this->get_logger(), "IN on_activate");
-        //Spawn Turtle
-        spawn_turtle_thread_ = std::thread(std::bind(&TurtleController::spawnTurtle,this));
-        server_activated_ = true;
-        rclcpp_lifecycle::LifecycleNode::on_activate(previous_state);
-        return LifecycleCallbackReturn::SUCCESS;
-    }
-
-
-    LifecycleCallbackReturn on_deactivate(const rclcpp_lifecycle::State &previous_state)
-    {
-        (void)previous_state;
-        RCLCPP_INFO(this->get_logger(), "Deactivate node");
-        server_activated_ = false;
-        // {
-        //     std::lock_guard<std::mutex> lock(mutex_);
-        //     if (goal_handle_) {
-        //         if (goal_handle_->is_active()) {
-        //             preempted_goal_id_ = goal_handle_->get_goal_id();
-        //         }
-        //     }
-        // }
-        rclcpp_lifecycle::LifecycleNode::on_deactivate(previous_state);
-        return LifecycleCallbackReturn::SUCCESS;
-    }
-
-    LifecycleCallbackReturn on_cleanup(const rclcpp_lifecycle::State &previous_state)
-    {
-        (void)previous_state;
-        turtle_name_ = "";
-        this->undeclare_parameter("robot_name");
-        move_turtle_server_.reset();
-        return LifecycleCallbackReturn::SUCCESS;
-    }
-
-    LifecycleCallbackReturn on_shutdown(const rclcpp_lifecycle::State &previous_state)
-    {
-        (void)previous_state;
-        turtle_name_ = "";
-        this->undeclare_parameter("robot_name");
-        move_turtle_server_.reset();
-        return LifecycleCallbackReturn::SUCCESS;
-    }
-
 
 
 private:
@@ -276,7 +219,6 @@ private:
     std::shared_ptr<MoveTurtleGoalHandle> goal_handle_;
     std::mutex mutex_;
     rclcpp::Publisher<Twist>::SharedPtr cmd_vel_publisher_;
-    bool server_activated_;
 
 
 };
@@ -285,7 +227,7 @@ int main(int argsc, char **argv){
     rclcpp::init(argsc, argv);
     auto node = std::make_shared<TurtleController>();  
     rclcpp::executors::MultiThreadedExecutor executor;
-    executor.add_node(node->get_node_base_interface());
+    executor.add_node(node);
     executor.spin();
     rclcpp::shutdown();
     return 0;
@@ -294,8 +236,4 @@ int main(int argsc, char **argv){
 
 
 //ros2 run final_project_cpp turtle_controller --ros-args -p turtle_name:=abx
-//ros2 lifecycle nodes
-//   /turtle_controller
-//ros2 lifecycle set /turtle_controller configure
-//ros2 lifecycle set /turtle_controller activate
 //ros2 action send_goal /move_turtle my_robot_interfaces/action/MoveTurtle "{linear_vel_x: 1.0, angular_vel_z: 1.53, duration_sec: 2.0}"
