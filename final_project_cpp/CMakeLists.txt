@@ -13,16 +13,39 @@ find_package(turtlesim REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
+find_package(rclcpp_components REQUIRED)
 
-
-add_executable(turtle_controller src/turtle_controller.cpp)
-ament_target_dependencies(turtle_controller rclcpp my_robot_interfaces turtlesim rclcpp_action geometry_msgs rclcpp_lifecycle) 
+add_executable(turtle_controller_step3 src/turtle_controller_step3.cpp)
+ament_target_dependencies(turtle_controller_step3 rclcpp my_robot_interfaces turtlesim rclcpp_action geometry_msgs rclcpp_lifecycle) 
 
 # instalar en algun ligar de projecty name
 install(TARGETS
-  turtle_controller
+  turtle_controller_step3
   DESTINATION lib/${PROJECT_NAME}
 )
+
+# PARA CREAR EL NODO
+add_library(final_project_component SHARED src/turtle_controller.cpp)
+ament_target_dependencies(
+  final_project_component
+  rclcpp
+  my_robot_interfaces
+  turtlesim
+  rclcpp_action
+  geometry_msgs
+  rclcpp_lifecycle
+  rclcpp_components
+  )
+rclcpp_components_register_nodes(final_project_component "final_project::TurtleController")
+
+install(TARGETS
+  final_project_component
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+
 
 # if(BUILD_TESTING)
 #   find_package(ament_lint_auto REQUIRED)
