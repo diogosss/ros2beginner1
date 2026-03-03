@@ -24,7 +24,7 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
-# PARA CREAR EL NODO
+# PARA CREAR EL NODO FINAL PROJECT
 add_library(final_project_component SHARED src/turtle_controller.cpp)
 ament_target_dependencies(
   final_project_component
@@ -38,8 +38,22 @@ ament_target_dependencies(
   )
 rclcpp_components_register_nodes(final_project_component "final_project::TurtleController")
 
+# PARA CREAR EL NODO TURTLEBOT3
+add_library(turtlebot3_component SHARED src/turtle_controller_turtlebot3.cpp)
+ament_target_dependencies(
+  turtlebot3_component
+  rclcpp
+  my_robot_interfaces
+  rclcpp_action
+  geometry_msgs
+  rclcpp_lifecycle
+  rclcpp_components
+  )
+rclcpp_components_register_nodes(turtlebot3_component "final_project::TurtleBot3Controller")
+
 install(TARGETS
   final_project_component
+  turtlebot3_component
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
